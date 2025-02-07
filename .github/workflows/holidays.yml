@@ -51,6 +51,13 @@ jobs:
           git add holidays/
           git diff --cached --quiet || (git commit -m "[UPDATE] Holidays for ${{ matrix.year }}")
           git pull --rebase --autostash origin master
-          git push origin HEAD:master
+          n=0
+          until [ $n -ge 5 ]
+          do
+            git push origin HEAD:master && break
+            n=$((n+1))
+            echo "Push failed. Retrying in 5 seconds... ($n/5)"
+            sleep 5
+          done
 
 
