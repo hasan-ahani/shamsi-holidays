@@ -2,21 +2,21 @@ name: Fetch Holidays Yearly
 
 on:
   schedule:
-    - cron: '0 0 1 1 *'  # اجرای خودکار اول ژانویه
-  workflow_dispatch:  # قابلیت اجرای دستی
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}  # ذخیره خروجی مرحله قبل
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Set Dynamic Matrix (Persian Calendar)
         id: set-matrix
         run: |
-          CURRENT_YEAR=$(date +"%Y")  # سال میلادی جاری
-          SHAMSI_YEAR=$((CURRENT_YEAR - 621))  # تبدیل به سال شمسی
-          YEARS=$(seq $SHAMSI_YEAR $((SHAMSI_YEAR + 5)))  # لیست ۶ سال (امسال + ۵ سال آینده)
+          CURRENT_YEAR=$(date +"%Y")
+          SHAMSI_YEAR=$((CURRENT_YEAR - 621))
+          YEARS=$(seq $SHAMSI_YEAR $((SHAMSI_YEAR + 5)))
           echo "matrix=$(echo $YEARS | jq -R -s -c 'split(" ")')" >> $GITHUB_OUTPUT
 
   fetch-holidays:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        year: ${{ fromJson(needs.scrape.outputs.matrix) }}  # خواندن لیست سال‌ها از مرحله قبلی
+        year: ${{ fromJson(needs.scrape.outputs.matrix) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -40,14 +40,10 @@ jobs:
       - name: Run Scraper for ${{ matrix.year }}
         run: node index.js ${{ matrix.year }}
 
-      - name: Commit & Push if Changed
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add holidays/
-          git diff --cached --quiet || (git commit -m "[UPDATE] Holidays for ${{ matrix.year }}" && git push)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          message: "[UPDATE] Holidays for ${{ matrix.year }}"
 
 
