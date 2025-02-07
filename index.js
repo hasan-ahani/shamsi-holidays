@@ -10,7 +10,11 @@ const year = process.argv.slice(2)[0];
 ;(async () => {
     try {
         const url = "https://www.time.ir/fa/eventyear-تقویم-سال%db%8c%d8%a7%d9%86%d9%87";
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: "new",
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+
+        });
         const page = await browser.newPage();
 
         console.log('Setting request interception...')
