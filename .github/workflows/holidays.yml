@@ -38,12 +38,18 @@ jobs:
         run: npm install puppeteer
 
       - name: Run Scraper for ${{ matrix.year }}
-        run: node index.js ${{ matrix.year }}
+        run: node index.js ${{ matrix.year }
 
-      - name: Commit & Push changes
-        uses: actions-js/push@master
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          message: "[UPDATE] Holidays for ${{ matrix.year }}"
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+
+      - name: Commit and Push changes
+        run: |
+          git add holidays/
+          git diff --cached --quiet || (git commit -m "[UPDATE] Holidays for ${{ matrix.year }}" && git push origin HEAD:main)
+      
 
 
