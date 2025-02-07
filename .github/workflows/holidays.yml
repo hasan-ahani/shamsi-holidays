@@ -45,9 +45,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add holidays/
-          git diff --cached --quiet || (git commit -m "Update holidays for ${{ matrix.year }}" && git push)
+          git diff --cached --quiet || (git commit -m "[UPDATE] Holidays for ${{ matrix.year }}" && git push)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
 
 
