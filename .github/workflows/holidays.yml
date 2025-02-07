@@ -49,7 +49,7 @@ jobs:
       - name: Commit and Push changes
         run: |
           git add holidays/
-          git diff --cached --quiet || (git commit -m "[UPDATE] Holidays for ${{ matrix.year }}" && git push origin HEAD:main)
+          git diff --cached --quiet || (git commit -m "[UPDATE] Holidays for ${{ matrix.year }}" && git pull --rebase && git push origin HEAD:master)
       
 
 
