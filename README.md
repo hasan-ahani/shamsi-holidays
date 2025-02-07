@@ -43,7 +43,7 @@ This repository contains an automated scraper that fetches Persian calendar holi
 
 3. Run the scraper for a specific year:
    ```sh
-   node fetchHolidays.js 1403
+   node index.js 1403
    ```
 
 ### **Automated Workflow**
