@@ -38,7 +38,7 @@ jobs:
         run: npm install puppeteer
 
       - name: Run Scraper for ${{ matrix.year }}
-        run: node index.js ${{ matrix.year }
+        run: node index.js ${{ matrix.year }}
 
       - name: Configure Git
         run: |
