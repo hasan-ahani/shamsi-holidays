@@ -1913,7 +1913,7 @@
                 "is_holiday": true
             },
             {
-                "description": "فاجعه انفجار قطار نیشابور [1382 خورشیدی]",
+                "description": "فاجعه انفجار قطار نیشابور [1382 خورشیدي]",
                 "is_holiday": false
             }
         ],
@@ -1923,7 +1923,7 @@
         "date": "1409-12-05",
         "events": [
             {
-                "description": "روز بزرگداشت زن و زمین",
+                "description": "جشن سپندارمذگان و روز عشق",
                 "is_holiday": false
             },
             {
