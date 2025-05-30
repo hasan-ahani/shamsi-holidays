@@ -9,7 +9,7 @@ const year = process.argv.slice(2)[0];
 
 ;(async () => {
     try {
-        const url = "https://www.time.ir/fa/eventyear-تقویم-سال%db%8c%d8%a7%d9%86%d9%87";
+        const url = "https://www.time.ir/event-year";
         const browser = await puppeteer.launch({
             headless: "new",
             args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -43,14 +43,14 @@ const year = process.argv.slice(2)[0];
             await browser.close()
             process.exit(1)
         }
-        const inputYear = "input[type='text']"
-        const submitYear = "input[type='submit']"
+        const inputYear = "input#year"
+        const submitYear = "button#goToYear"
 
 
         // تغییر مقدار اینپوت (سال)
         await page.evaluate((year) => {
-            console.log(document.querySelector("input[type='text']"))
-            document.querySelector("input[type='text']").value = year
+            console.log(document.querySelector("input#year"))
+            document.querySelector("input#year").value = year
         }, year);
 
         // کلیک روی دکمه
@@ -63,14 +63,38 @@ const year = process.argv.slice(2)[0];
 
         // اجرای کد اسکرپینگ در مرورگر
         const holidays = await page.evaluate(() => {
-            const events = Array.from(document.querySelectorAll(".eventsCurrentMonthWrapper li"), (node) => ({
-                date: document.querySelector("input[type='text']").value + '-' +
-                    (Array.from(document.querySelectorAll("div[class='col-md-12']>div>div>span>span>span"),
-                        span => span.innerText).findIndex(x => x === node.innerText.split(" ")[1]) + 1).toString().padStart(2, '0') + "-" +
-                    node.innerText.split(" ")[0].replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).padStart(2, '0'),
-                description: node.innerText.split(" ").slice(2).join(" "),
-                is_holiday: node.classList.contains('eventHoliday')
-            }));
+            const events = [];
+
+            document.querySelectorAll('[id^="Month"] div[class^="EventListItem_root__"]').forEach((node) => {
+                const dateSpan = node.querySelector("span[class*='date']");
+                const descSpan = node.querySelector("span[class*='event']");
+
+                if (!dateSpan || !descSpan) return;
+
+                const dateText = dateSpan.innerText.trim(); // مثل "1 فروردین"
+                const description = descSpan.innerText.trim(); // مثل "جشن نوروز/..."
+
+                const [dayPersian, monthName] = dateText.split(" ");
+
+                // تبدیل عدد فارسی به انگلیسی
+                const toEnglishDigits = (s) => s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+
+                const day = toEnglishDigits(dayPersian).padStart(2, '0');
+
+                const monthMap = {
+                    'فروردین': 1, 'اردیبهشت': 2, 'خرداد': 3, 'تیر': 4,
+                    'مرداد': 5, 'شهریور': 6, 'مهر': 7, 'آبان': 8,
+                    'آذر': 9, 'دی': 10, 'بهمن': 11, 'اسفند': 12
+                };
+
+                const month = String(monthMap[monthName] || 0).padStart(2, '0');
+
+                events.push({
+                    date: `${year}-${month}-${day}`,
+                    description,
+                    is_holiday: dateSpan.className.includes('holiday') || descSpan.className.includes('holiday')
+                });
+            });
 
             const groupedEvents = events.reduce((acc, event) => {
                 if (!acc[event.date]) {
